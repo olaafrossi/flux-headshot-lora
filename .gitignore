@@ -416,3 +416,34 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# ---------------------------------------------------------------------------
+# Python / ML
+# ---------------------------------------------------------------------------
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# Hugging Face / Diffusers cache
+.cache/
+hf_cache/
+
+# Project artifacts — raw photos, prepped dataset, trained LoRAs, generated images
+dataset/raw/
+dataset/train/
+output/
+*.safetensors
+*.ckpt
+*.pt
+*.bin
+
+# Keep the directory structure so clones aren't missing folders
+!dataset/raw/.gitkeep
+!dataset/train/.gitkeep
+!output/.gitkeep
+!output/loras/.gitkeep
+!output/images/.gitkeep

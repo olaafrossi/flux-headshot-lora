@@ -1,0 +1,25 @@
+# torch is installed separately — Blackwell (RTX 5070) needs the cu128 wheel.
+# See README.md for the pip install command.
+
+diffusers>=0.32.0
+transformers>=4.45.0
+accelerate>=1.1.0
+peft>=0.13.0
+safetensors>=0.4.5
+
+# 4-bit quantization for FLUX transformer + T5 on 12GB VRAM
+bitsandbytes>=0.45.0
+
+# FLUX tokenizers (T5 + CLIP)
+sentencepiece>=0.2.0
+protobuf>=4.25.0
+
+# Dataset prep
+pillow>=10.4.0
+pillow-heif>=0.18.0  # iPhone HEIC/HEIF support for prep_dataset.py
+opencv-python-headless>=4.10.0  # Haar cascade face detector for head+shoulders crop
+numpy>=1.26.0
+
+# CLI niceties
+tqdm>=4.66.0
+huggingface_hub>=0.26.0

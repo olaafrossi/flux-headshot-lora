@@ -1,0 +1,94 @@
+---
+# AI Toolkit config for training a FLUX.1-dev LoRA on an RTX 5070 Laptop
+# (8GB VRAM). Every knob below is cranked for minimum memory footprint.
+# Run from the ai-toolkit directory:
+#   python run.py ../flux-headshot-lora/config/headshot_lora.yaml
+#
+# 8GB notes:
+# - Resolution capped at 512 (larger buckets OOM during latent encoding)
+# - LoRA rank halved to 16 (meaningful VRAM savings at minor quality cost)
+# - EMA disabled (EMA keeps a shadow copy of weights, costs ~1.5GB)
+# - In-training sampling effectively disabled (sample_every > total steps)
+#   because sample generation temporarily loads inference state on top of
+#   training state, which 8GB cannot hold.
+# - If you still OOM: drop `network.linear` to 8, or drop steps and retry
+# - If you OOM only at certain steps: the bucket encoder is peaking;
+#   delete the latent cache under ../flux-headshot-lora/output/loras and
+#   restart so latents are re-encoded one at a time.
+
+job: extension
+config:
+  name: "my_headshot_lora"
+  process:
+    - type: "sd_trainer"
+
+      # Resolved relative to the ai-toolkit CWD. Use absolute paths if you run
+      # the trainer from somewhere else.
+      training_folder: "../flux-headshot-lora/output/loras"
+      device: cuda:0
+      trigger_word: "ohwx_person"
+
+      network:
+        type: "lora"
+        linear: 16
+        linear_alpha: 16
+
+      save:
+        dtype: float16
+        save_every: 250
+        max_step_saves_to_keep: 4
+        push_to_hub: false
+
+      datasets:
+        - folder_path: "../flux-headshot-lora/dataset/train"
+          caption_ext: "txt"
+          caption_dropout_rate: 0.05
+          shuffle_tokens: false
+          cache_latents_to_disk: true
+          resolution: [512]
+
+      train:
+        batch_size: 1
+        steps: 1000
+        gradient_accumulation_steps: 1
+        train_unet: true
+        train_text_encoder: false
+        gradient_checkpointing: true
+        noise_scheduler: "flowmatch"
+        optimizer: "adamw8bit"
+        lr: 1e-4
+        ema_config:
+          use_ema: false
+        dtype: bf16
+        # These two live under train (not sample) — AI Toolkit reads them
+        # from TrainConfig in BaseSDTrainProcess.py:2072. Required on 8GB
+        # because the pre-training baseline sample pass would otherwise
+        # run regardless of sample_every.
+        skip_first_sample: true
+        disable_sampling: true
+
+      model:
+        name_or_path: "black-forest-labs/FLUX.1-dev"
+        is_flux: true
+        # NF4 quantization of the transformer + T5 — non-negotiable on 8GB.
+        quantize: true
+        low_vram: true
+
+      # Sampling during training is effectively disabled on 8GB. Keep the
+      # block present so AI Toolkit's schema validation passes, but set
+      # sample_every higher than total steps so it never fires.
+      sample:
+        sampler: "flowmatch"
+        sample_every: 99999
+        width: 512
+        height: 512
+        guidance_scale: 4
+        sample_steps: 20
+        seed: 42
+        walk_seed: true
+        prompts:
+          - "professional headshot of [trigger], navy suit, neutral gray background"
+
+meta:
+  name: "[name]"
+  version: "1.0"
