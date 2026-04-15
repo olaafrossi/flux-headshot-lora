@@ -29,9 +29,9 @@ flowchart LR
 | --- | --- | --- |
 | **Prep** | ~10 seconds | ~10 seconds |
 | **Train** (1000 steps) | ~10 hours | ~30 minutes |
-| **Generate** (36 images) | ~60 minutes | ~6 minutes |
+| **Generate** (36 images) | ~2 hours | ~8 minutes |
 
-Training is the time sink. Set the machine to never sleep and walk away — there's no auto-resume from interruption.
+Training is the time sink. Set the machine to never sleep and walk away... there's no auto-resume from interruption. Also, make sure you have good cooling- i placed my laptop on it's side for good airflow.
 
 ---
 
@@ -49,12 +49,12 @@ Defaults in this repo target the **8 GB borderline tier**. Scale up via [Tuning]
 
 ## Prerequisites
 
-- **OS** — Windows 11 (tested) or Linux (should work, untested).
-- **Python 3.11 or 3.12.** *Do not use 3.13 or 3.14* — AI Toolkit pins `scipy==1.12.0`, which has no wheel past cp312, and a from-source build demands a Fortran compiler (ifort/gfortran/flang) you almost certainly don't have.
+- **OS** Windows 11 (tested) or Linux (should work, untested).
+- **Python 3.11 or 3.12.** *Do not use 3.13 or 3.14* AI Toolkit pins `scipy==1.12.0`, which has no wheel past cp312, and a from-source build demands a Fortran compiler (ifort/gfortran/flang) you almost certainly don't have.
 - **NVIDIA GPU**, Compute Capability ≥ sm_75 (Turing or newer). Blackwell (sm_120) verified on RTX 5070 Laptop.
 - **~60 GB free disk** for FLUX.1-dev weights, HF cache, and training latent cache.
 - **16 GB system RAM** minimum. 32 GB recommended if you ever want to try non-quantized inference.
-- **Hugging Face account** with the license accepted for [`black-forest-labs/FLUX.1-dev`](https://huggingface.co/black-forest-labs/FLUX.1-dev). It's gated — click through the form before you try to download.
+- **Hugging Face account** with the license accepted for [`black-forest-labs/FLUX.1-dev`](https://huggingface.co/black-forest-labs/FLUX.1-dev). It's gated click through the form before you try to download.
 
 ---
 
@@ -84,7 +84,7 @@ python --version    # sanity check — should say 3.12.x
 
 # 3. Install PyTorch with Blackwell (cu128) support FIRST.
 #    torch, torchvision, and torchaudio must all come from the
-#    cu128 index — PyPI's default ships a CPU-only torchvision.
+#    cu128 index PyPI's default ships a CPU-only torchvision.
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 
 # 4. Install this project's Python deps
@@ -141,7 +141,7 @@ Under the hood:
 - Resizes to 1024 px on the longest side.
 - Writes `NNN_<source>.jpg` + matching `NNN_<source>.txt` caption (`a photo of ohwx_person`) to `dataset/train/`.
 
-Output summary looks like `Prepped 26 image(s) → ... (face detected on 22/26)`. If detection rate drops below 70 %, investigate which photos failed — they'll still be in the training set via center crop, but with worse framing.
+Output summary looks like `Prepped 26 image(s) → ... (face detected on 22/26)`. If detection rate drops below 70 %, investigate which photos failed they'll still be in the training set via center crop, but with worse framing.
 
 **Override the trigger:** `--trigger your_token` (must match `trigger_word` in `config/headshot_lora.yaml` if you plan to edit the YAML).
 
@@ -345,4 +345,3 @@ Real issues hit during development, with the exact fix for each.
 
 ## License
 
-Choose a license before publishing. MIT or Apache-2.0 is the conventional pick for a public training-config + scripts repo. Add a `LICENSE` file and a corresponding badge or line in this section.
