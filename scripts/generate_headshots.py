@@ -1,4 +1,4 @@
-"""Generate headshots with a trained FLUX LoRA on an RTX 5070 (12GB VRAM).
+"""Generate headshots with a trained FLUX LoRA on an RTX 5070 laptop GPU (8GB VRAM).
 
 Loads FLUX.1-dev with NF4 quantization on the transformer and T5 text
 encoder, attaches the trained LoRA, and runs a batch of prompts from
