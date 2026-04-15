@@ -345,3 +345,4 @@ Real issues hit during development, with the exact fix for each.
 
 ## License
 
+MIT
